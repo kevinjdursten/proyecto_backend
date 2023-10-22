@@ -29,7 +29,7 @@ router.post("/user", createUser);
 router.patch("/user/:id", updateUser);
 router.delete("/user/:id", deleteUser);
 // auth routes
-router.post("/login", loginUser);
-router.post("/logout", logoutUser);
+router.post("/user/login", loginUser);
+router.post("/user/logout", logoutUser);
 
 module.exports = router;

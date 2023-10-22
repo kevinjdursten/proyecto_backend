@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const User = require("../model/User");
 
 exports.createUser = async (req, res) => {
@@ -25,27 +26,36 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-
     const { name, lastName, birthDate, email, password, role } = req.body;
 
-    const user = await User.findByIdAndUpdate(id, {
-      name,
-      lastName,
-      birthDate,
-      email,
-      password,
-      role,
-      updateDate: Date.now(),
-    });
+    // Buscar el usuario existente
+    const user = await User.findById(id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Actualizar los campos del usuario
+    user.name = name;
+    user.lastName = lastName;
+    user.birthDate = birthDate;
+    user.email = email;
+    user.role = role;
+    user.updateDate = Date.now();
+
+    // Si se proporcionó una nueva contraseña, cifrarla y actualizarla
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+
+    // Guardar el usuario actualizado en la base de datos
+    await user.save();
+
     res.status(200).json({ message: "User Update" });
   } catch (err) {
     console.log("Error to update User", err);
-    res.status(500).json({ messsage: "Error Not Update" });
+    res.status(500).json({ message: "Error Not Update" });
   }
 };
 
