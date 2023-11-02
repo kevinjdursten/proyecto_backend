@@ -23,8 +23,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 const Users = require("./router/User");
+const Pagos = require("./router/Pagos");
+const Productos = require("./router/Producto");
 app.use(express.json());
-app.use(Users);
+app.use(Users, Pagos, Productos);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

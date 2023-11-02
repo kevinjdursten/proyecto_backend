@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 exports.loginUser = async (req, res) => {
-  let info;
   try {
     const { email, password } = req.body;
 
@@ -27,12 +26,13 @@ exports.loginUser = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    info = {
-      userId: user._id,
-      role: user.role,
-      name: user.name,
-    };
-    res.status(200).json({ message: "Login succesfull", token, info });
+    const role = user.role;
+
+    res.status(200).json({
+      message: "Login succesfull",
+      token,
+      role,
+    });
   } catch (err) {
     if (err.name === "ValidationError") {
       return res.status(401).json({ message: "Error in Data" });
