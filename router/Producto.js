@@ -37,6 +37,7 @@ router.post("/product", upload.single("image"), async (req, res) => {
       price: req.body.price,
       description: req.body.description,
       image: req.file.filename,
+      category: req.body.category,
     });
     await producto.save();
     res.status(200).json({ message: "Imagen subida y producto guardado" });
@@ -82,10 +83,10 @@ router.delete("/product/:id", async (req, res) => {
 router.patch("/product/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description } = req.body;
+    const { name, price, description, category, image } = req.body;
     const product = await Producto.findByIdAndUpdate(
       id,
-      { name, price, description },
+      { name, price, description, category, image },
       { new: true }
     );
     if (!product) {

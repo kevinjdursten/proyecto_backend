@@ -23,6 +23,13 @@ const productoSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  category: {
+    type: String,
+    required: true,
+    minLength: 2,
+    maxLength: 30,
+    enum: ["Cumpleaños", "Aniversarios", "Infantil", "Graduacion"],
+  },
   creationDate: {
     type: Date,
     default: Date.now,

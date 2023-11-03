@@ -76,7 +76,7 @@ userSchema.pre("save", function (next) {
   if (!user.isModified("password")) {
     return next();
   }
-  bcrypt.hash(user.password, 10, (err, hash) => {
+  bcrypt.hash(user.password, 8, (err, hash) => {
     if (err) {
       return next(err);
     }
