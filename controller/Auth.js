@@ -27,11 +27,13 @@ exports.loginUser = async (req, res) => {
     );
 
     const role = user.role;
+    const userID = user._id;
 
     res.status(200).json({
       message: "Login succesfull",
       token,
       role,
+      userID,
     });
   } catch (err) {
     if (err.name === "ValidationError") {

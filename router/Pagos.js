@@ -42,19 +42,11 @@ const upload = multer({
 
 router.post("/upload", upload.single("image"), async (req, res) => {
   try {
-    const decodedToken = jwt.verify(req.body.token, process.env.JWT_SECRET);
-    const user = await User.findById(decodedToken._id);
-    const producto = await Producto.findById(req.body.productoID);
-
-    if (!producto) {
-      return res.status(400).json({ message: "Producto no encontrado" });
-    }
-
     const payment = new Pago({
-      total: producto.price,
+      total: req.body.total,
       image: req.file.filename,
-      userID: user._id,
-      productoID: producto._id,
+      userID: req.body.userID,
+      productoID: req.body.ProductoID,
     });
     await payment.save();
 
