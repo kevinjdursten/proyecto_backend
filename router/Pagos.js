@@ -2,10 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Pago = require("../model/Pago");
 const multer = require("multer");
-const User = require("../model/User");
-const Producto = require("../model/Producto");
 const path = require("path");
-const jwt = require("jsonwebtoken");
 
 // Multer Storage
 const storage = multer.diskStorage({
@@ -32,21 +29,15 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
-  fileFilter: fileFilter,
-});
+const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-router.post("/upload", upload.single("image"), async (req, res) => {
+router.post("/pago", upload.single("image"), async (req, res) => {
   try {
     const payment = new Pago({
       total: req.body.total,
       image: req.file.filename,
       userID: req.body.userID,
-      productoID: req.body.ProductoID,
+      productoID: req.body.productoID,
     });
     await payment.save();
 
