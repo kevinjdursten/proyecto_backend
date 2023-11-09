@@ -47,15 +47,139 @@ router.post("/pago", upload.single("image"), async (req, res) => {
   }
 });
 
-router.get("/payments", async (req, res) => {
+router.get("/unverified-payments", async (req, res) => {
   try {
-    const payments = await Pago.find({ verifiedPayment: false });
-    res
-      .status(200)
-      .send({ meesage: "Pagos Obtenidos con exito!", pago: payments });
+    const unverifiedPayments = await Pago.aggregate([
+      {
+        $match: {
+          verifiedPayment: false,
+        },
+      },
+      {
+        $lookup: {
+          from: "productos",
+          localField: "productoID",
+          foreignField: "_id",
+          as: "producto",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userID",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$producto",
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $project: {
+          _id: 1,
+          total: 1,
+          image: 1,
+          producto: {
+            _id: 1,
+            name: 1,
+            price: 1,
+          },
+          user: {
+            _id: 1,
+            name: 1,
+            lastName: 1,
+            email: 1,
+          },
+          verifiedPayment: 1,
+        },
+      },
+    ]);
+    res.json(unverifiedPayments);
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: "Error al obtener los pagos" });
+    res
+      .status(500)
+      .send({ message: "Error al obtener los pagos no verificados" });
+  }
+});
+
+router.get("/verified-payments", async (req, res) => {
+  try {
+    const verifiedPayments = await Pago.aggregate([
+      {
+        $match: {
+          verifiedPayment: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "productos",
+          localField: "productoID",
+          foreignField: "_id",
+          as: "producto",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userID",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$producto",
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $project: {
+          _id: 1,
+          total: 1,
+          image: 1,
+          producto: {
+            _id: 1,
+            name: 1,
+            price: 1,
+          },
+          user: {
+            _id: 1,
+            name: 1,
+            lastName: 1,
+            email: 1,
+          },
+          verifiedPayment: 1,
+        },
+      },
+    ]);
+    res.json(verifiedPayments);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Error al obtener los pagos verificados" });
+  }
+});
+
+router.post("/payments/verify/:pagoID", async (req, res) => {
+  const pagoID = req.params.pagoID;
+  try {
+    const payment = await Pago.findById(pagoID);
+
+    if (!payment) {
+      return res.status(404).send({ message: "Pago no encontrado" });
+    }
+
+    payment.verifiedPayment = true;
+
+    await payment.save();
+
+    res.json(payment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Error al verificar el pago" });
   }
 });
 
